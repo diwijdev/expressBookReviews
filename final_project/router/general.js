@@ -3,11 +3,25 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 
 public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const { username, password } = req.body;
+    // Check if username and password are provided
+    if (username && password) {
+        if (!isValid(username)) { 
+          users.push({"username":username,"password":password});
+          return res.status(200).json({message: "User successfully registred. Now you can login"});
+        } else {
+          return res.status(404).json({message: "User already exists!"});    
+        }
+      } 
+      return res.status(404).json({message: "Unable to register user."});
+    });
+
+public_users.get('/users',function (req, res) {
+    return res.status(200).send(JSON.stringify({users}, null, 4));
 });
 
 // Get the book list available in the shop
@@ -84,5 +98,6 @@ public_users.get('/review/:isbn',function (req, res) {
       return res.status(404).json({ message: "Book not found" });
     }
 });
+  
 
 module.exports.general = public_users;
